@@ -1,5 +1,5 @@
 #!/bin/bash
-# =============================================================
+#
 # run_pipeline.sh
 # Environment loader — called via SSH from watch_and_upload.ps1
 #
@@ -13,7 +13,7 @@
 #
 # Called automatically by watch_and_upload.ps1 as:
 #   ssh -i key.ppk ubuntu@IP '/home/ubuntu/run_pipeline.sh filename.csv'
-# =============================================================
+
 
 # Java environment
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
