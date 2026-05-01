@@ -1,7 +1,7 @@
 """
 pipeline.py
-===========
-Master 4-stage pipeline for Reactor Data Monitoring & Viscosity Prediction.
+
+ 4-stage pipeline for Reactor Data Monitoring & Viscosity Prediction.
 
 Stages:
     1. bronze_to_silver  — clean raw CSV data
@@ -13,7 +13,7 @@ Usage:
     python3 pipeline.py --input files75_csv_combined.csv
 
 Author: James Daramola
-Date:   May 2026
+Date:   April 2026
 """
 
 import argparse
@@ -29,7 +29,7 @@ from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import RandomForestRegressor
 from pyspark.ml.evaluation import RegressionEvaluator
 
-# ── S3 Configuration ──────────────────────────────────────────────
+# S3 Configuration 
 BUCKET      = "reactor-project-emperor1"
 SILVER_PATH = "s3a://reactor-project-emperor1/silver/reactor_data/"
 GOLD_PATH   = "s3a://reactor-project-emperor1/gold/reactor_features/"
@@ -201,7 +201,7 @@ def silver_to_gold(spark):
     print("Stage 2: Engineering features...")
     df = spark.read.parquet(SILVER_PATH).orderBy("timestamp")
 
-    # ── CRITICAL: Partition by batch_id ──────────────────────────
+    #  CRITICAL: Partition by batch_id 
     # This prevents cross-batch contamination.
     # Without partitionBy: R² = 0.41
     # With partitionBy:    R² = 0.9978
@@ -209,7 +209,7 @@ def silver_to_gold(spark):
     window_batch_5 = Window.partitionBy("batch_id").orderBy("timestamp") \
                            .rowsBetween(-5, 0)
 
-    # ── Rolling averages — remove sensor noise ────────────────────
+    #  Rolling averages — remove sensor noise 
     df = df.withColumn("temp_rolling_avg_5",
         F.avg("temperature_c").over(window_batch_5))
     df = df.withColumn("ph_rolling_avg_5",
@@ -217,7 +217,7 @@ def silver_to_gold(spark):
     df = df.withColumn("visc_rolling_avg_5",
         F.avg("viscosity_cp").over(window_batch_5))
 
-    # ── Lag features — give model memory ─────────────────────────
+    #  Lag features — give model memory
     df = df.withColumn("temp_lag_1",
         F.lag("temperature_c", 1).over(window_batch))
     df = df.withColumn("viscosity_lag_1",
@@ -227,7 +227,7 @@ def silver_to_gold(spark):
     df = df.withColumn("viscosity_lag_10",
         F.lag("viscosity_cp", 10).over(window_batch))
 
-    # ── Rate of change — give model momentum ─────────────────────
+    #  Rate of change — give model momentum 
     df = df.withColumn("temp_rate_change",
         F.col("temperature_c") - F.col("temp_lag_1"))
     df = df.withColumn("ph_rate_change",
@@ -235,7 +235,7 @@ def silver_to_gold(spark):
     df = df.withColumn("visc_rate_change",
         F.col("viscosity_cp") - F.col("viscosity_lag_1"))
 
-    # ── Batch progress percentage — give model context ────────────
+    #  Batch progress percentage — give model context 
     batch_stats = df.groupBy("batch_id").agg(
         F.min("batch_time_mins").alias("batch_start"),
         F.max("batch_time_mins").alias("batch_end"))
@@ -244,7 +244,7 @@ def silver_to_gold(spark):
         (F.col("batch_time_mins") - F.col("batch_start")) /
         (F.col("batch_end")       - F.col("batch_start")) * 100)
 
-    # ── Prediction target — viscosity 10 steps ahead ──────────────
+    #  Prediction target — viscosity 10 steps ahead
     # lead(10) looks FORWARD in time — opposite of lag()
     # This converts the problem to supervised regression
     df = df.withColumn("viscosity_target_10min",
@@ -363,7 +363,7 @@ def train_model(spark):
     return rmse, r2
 
 
-# ── Entry point ───────────────────────────────────────────────────
+#  Entry point 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reactor viscosity prediction pipeline")
