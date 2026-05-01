@@ -1,6 +1,6 @@
 """
 dashboard.py
-============
+
 Plotly Dash live monitoring dashboard for Reactor R1.
 
 Reads prediction results from S3 Gold and displays:
@@ -35,7 +35,7 @@ import plotly.graph_objects as go
 import dash
 from dash import dcc, html, Input, Output
 
-# ── Configuration ─────────────────────────────────────────────────
+# Configuration
 BUCKET    = "reactor-project-emperor1"
 PRED_PATH = "gold/predictions/"
 
@@ -66,7 +66,7 @@ def load_data():
     return df
 
 
-# ── Feature importance from trained model ─────────────────────────
+# Feature importance from trained model (sample)
 FEATURES = ["ph_level", "ph_rolling_avg", "temperature_c", "batch_time",
             "temp_rate_change", "ph_rate_change", "batch_progress",
             "visc_lag_1"]
@@ -74,7 +74,7 @@ IMPORTANCES = [0.2347, 0.1963, 0.1911, 0.1456,
                0.0976, 0.0732, 0.0512, 0.0103]
 
 
-# ── App layout ────────────────────────────────────────────────────
+#  App layout 
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
@@ -124,7 +124,7 @@ app.layout = html.Div([
 ], style={"fontFamily": "Arial, sans-serif", "backgroundColor": "#FAFAFA"})
 
 
-# ── Callback — updates all charts every 60 seconds ────────────────
+#  Callback — updates all charts every 60 seconds 
 @app.callback(
     [Output("metric-cards",      "children"),
      Output("prediction-banner", "children"),
@@ -147,7 +147,7 @@ def update(n):
     avg_error  = round(float(df["error"].mean()), 2)
     n_batches  = df["batch_id"].nunique() if "batch_id" in df.columns else "—"
 
-    # ── Metric cards ─────────────────────────────────────────────
+    #  Metric cards
     card_style = {
         "flex": "1", "padding": "16px", "backgroundColor": "white",
         "borderRadius": "8px", "border": "1px solid #EEEEEE",
@@ -171,7 +171,7 @@ def update(n):
                   html.P("in dataset",     style={"color":"#AAAAAA","fontSize":"11px","margin":"0"})], style=card_style),
     ], style={"display":"flex","gap":"16px"})
 
-    # ── Prediction banner ─────────────────────────────────────────
+    # Prediction banner 
     in_range = VISC_MIN <= prediction <= VISC_MAX
     banner = html.Div([
         html.P("10-minute viscosity prediction",
@@ -188,7 +188,7 @@ def update(n):
         ], style={"marginTop":"8px","float":"right","fontSize":"13px"}),
     ])
 
-    # ── Temperature chart ─────────────────────────────────────────
+    #  Temperature chart 
     temp_fig = go.Figure(go.Scatter(
         x=df["timestamp"], y=df["temperature_c"],
         fill="tozeroy", fillcolor="rgba(230,126,34,0.15)",
@@ -201,7 +201,7 @@ def update(n):
         yaxis=dict(showgrid=True, gridcolor="#F0F0F0")
     )
 
-    # ── pH chart ──────────────────────────────────────────────────
+    #  pH chart 
     ph_fig = go.Figure(go.Scatter(
         x=df["timestamp"], y=df["ph_level"],
         fill="tozeroy", fillcolor="rgba(36,113,163,0.1)",
@@ -214,7 +214,7 @@ def update(n):
         yaxis=dict(showgrid=True, gridcolor="#F0F0F0")
     )
 
-    # ── Viscosity actual vs predicted ─────────────────────────────
+    # Viscosity actual vs predicted
     visc_fig = go.Figure([
         go.Scatter(x=df["timestamp"], y=df["viscosity_target_10min"],
                    name="Actual", line=dict(color="#1B3A5C", width=1.5)),
@@ -231,7 +231,7 @@ def update(n):
         yaxis=dict(showgrid=True, gridcolor="#F0F0F0")
     )
 
-    # ── Error histogram ───────────────────────────────────────────
+    #  Error histogram 
     err_fig = go.Figure(go.Histogram(
         x=df["error"], nbinsx=20,
         marker_color="#2471A3", name="Error"
@@ -243,7 +243,7 @@ def update(n):
         plot_bgcolor="white", paper_bgcolor="white"
     )
 
-    # ── Feature importance ────────────────────────────────────────
+    #  Feature importance 
     colours = ["#2471A3" if i < 3 else "#E67E22" if i < 6 else "#7F8C8D"
                for i in range(len(FEATURES))]
     imp_fig = go.Figure(go.Bar(
