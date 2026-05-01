@@ -1,4 +1,4 @@
-# =============================================================
+
 # watch_and_upload.ps1
 # Windows folder watcher — monitors incoming_csv for new data
 #
@@ -17,7 +17,7 @@
 #   powershell -ExecutionPolicy Bypass -File "watch_and_upload.ps1"
 #
 # IMPORTANT: Update ec2IP every morning — it changes on EC2 restart
-# =============================================================
+
 
 # ---- CONFIGURATION --------------------------------------------
 $watchFolder     = "C:\Users\daram\ReactorProject\incoming_csv"
