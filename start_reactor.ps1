@@ -1,4 +1,4 @@
-# =============================================================
+
 # start_reactor.ps1
 # One-command morning startup script
 #
@@ -11,7 +11,7 @@
 #
 # Usage:
 #   powershell -ExecutionPolicy Bypass -File "start_reactor.ps1"
-# =============================================================
+
 
 $instanceId    = "i-084fd00b0356d1b12"
 $watcherScript = "C:\Users\daram\ReactorProject\scripts\watch_and_upload.ps1"
