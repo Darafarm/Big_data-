@@ -1,12 +1,12 @@
 #!/bin/bash
-# =============================================================
+
 # start_hadoop.sh
 # Auto-starts Hadoop on EC2 boot via crontab @reboot
 #
 # To register:
 #   crontab -e
 #   Add: @reboot /home/ubuntu/start_hadoop.sh
-# =============================================================
+
 
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 export HADOOP_HOME=/usr/local/hadoop
